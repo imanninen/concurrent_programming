@@ -67,9 +67,9 @@ class AtomicCounterArray(size: Int) {
                 else {
                     IncrementDescriptor(index2, secondValue as Int, index1, firstValue as Int)
                 }
-                val minInd = if (index1 < index2) index1 else index2
-                val minIndValue = if (index1 < index2) firstValue else secondValue
-                if (array[minInd].compareAndSet(minIndValue, desc)) {
+                val minIndex = if (index1 < index2) index1 else index2
+                val minIndexValue = if (index1 < index2) firstValue else secondValue
+                if (array[minIndex].compareAndSet(minIndexValue, desc)) {
                     desc.applyOperation()
                     if (desc.status.value == SUCCESS)
                         return

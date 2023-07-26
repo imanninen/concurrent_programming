@@ -38,7 +38,7 @@ class FAABasedQueue<E> : Queue<E> {
     fun moveTailForward(newTail: Segment<E>) {
         while (true)
         {
-            val currentTail = tail.value ?: continue
+            val currentTail = tail.value
             if (newTail.id > currentTail.id)
             {
                 if (tail.compareAndSet(currentTail, newTail))
@@ -55,9 +55,9 @@ class FAABasedQueue<E> : Queue<E> {
 
     fun moveHeadForward(newHead: Segment<E>) {
         while (true) {
-            val currentHead = head.value ?: continue
+            val currentHead = head.value
 
-            if (newHead.id  > deqIdx.value / SEGM_SIZE) // мы хотим сделать head таким, что до deqIdx не достать
+            if (newHead.id  > deqIdx.value / SEGM_SIZE)
                 return
             if (newHead.id > currentHead.id)
             {
@@ -99,7 +99,7 @@ class FAABasedQueue<E> : Queue<E> {
                 continue
             return s.infiniteArray[index % SEGM_SIZE].value as E?
         }
-        //TODO("Implement me!")
+
     }
 
     class Segment<E>(val id: Int) {

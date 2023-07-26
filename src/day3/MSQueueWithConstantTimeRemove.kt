@@ -18,20 +18,19 @@ class MSQueueWithConstantTimeRemove<E> : QueueWithRemove<E> {
         // TODO: When adding a new node, check whether
         // TODO: the previous tail is logically removed.
         // TODO: If so, remove it physically from the linked list.
-
         while (true) {
-            val curTail = tail.value
-            val node = Node(element, curTail)
+            val currentTail = tail.value
+            val node = Node(element, currentTail)
 
-            if (curTail.next.compareAndSet(null, node)) {
-                if (tail.compareAndSet(curTail, node)) {
-                    if (curTail.extractedOrRemoved && curTail != head.value) curTail.removePhysic()
+            if (currentTail.next.compareAndSet(null, node)) {
+                if (tail.compareAndSet(currentTail, node)) {
+                    if (currentTail.extractedOrRemoved && currentTail != head.value) currentTail.removePhysic()
                 }
                 return
             } else {
-                val next = curTail.next.value ?: continue
-                tail.compareAndSet(curTail, next)
-                if (curTail.extractedOrRemoved && curTail != head.value) curTail.removePhysic()
+                val next = currentTail.next.value ?: continue
+                tail.compareAndSet(currentTail, next)
+                if (currentTail.extractedOrRemoved && currentTail != head.value) currentTail.removePhysic()
             }
         }
     }
@@ -41,24 +40,20 @@ class MSQueueWithConstantTimeRemove<E> : QueueWithRemove<E> {
         // TODO: mark the node that contains the extracting
         // TODO: element as "extracted or removed", restarting
         // TODO: the operation if this node has already been removed.
-
         while (true) {
-            val curHead = head.value
-            val curHeadNext = curHead.next.value ?: return null
+            val currentHead = head.value
+            val currentHeadNext = currentHead.next.value ?: return null
 
-            if (head.compareAndSet(curHead, curHeadNext)) {
-                curHeadNext.prev.getAndSet(null)
-                if (curHeadNext.markExtractedOrRemoved()) {
-                    return curHeadNext.element
+            if (head.compareAndSet(currentHead, currentHeadNext)) {
+                currentHeadNext.prev.getAndSet(null)
+                if (currentHeadNext.markExtractedOrRemoved()) {
+                    return currentHeadNext.element
                 }
             }
         }
     }
 
     override fun remove(element: E): Boolean {
-        // Traverse the linked list, searching the specified
-        // element. Try to remove the corresponding node if found.
-        // DO NOT CHANGE THIS CODE.
         var node = head.value
         while (true) {
             val next = node.next.value

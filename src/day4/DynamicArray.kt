@@ -13,42 +13,42 @@ class DynamicArray<E: Any> {
         // TODO: Implement me!
         // TODO: Yeah, this is a hard task, I know ...
         while (true) {
-            val curCore = core.value
-            val nextCore = curCore.next.value
+            val currentCore = core.value
+            val nextCore = currentCore.next.value
             if (nextCore == null) {
-                val curSize = curCore.size.value
-                if (curSize == curCore.capacity) {
-                    val newCore = Core(curCore.capacity * 2)
-                    newCore.size.value = curSize
-                    curCore.next.compareAndSet(null, newCore)
+                val currentSize = currentCore.size.value
+                if (currentSize == currentCore.capacity) {
+                    val newCore = Core(currentCore.capacity * 2)
+                    newCore.size.value = currentSize
+                    currentCore.next.compareAndSet(null, newCore)
                     continue
                 }
 
-                if (!curCore.array[curSize].compareAndSet(null, element)) {
-                    curCore.size.compareAndSet(curSize, curSize+1)
+                if (!currentCore.array[currentSize].compareAndSet(null, element)) {
+                    currentCore.size.compareAndSet(currentSize, currentSize+1)
                     continue
                 }
                 while (true) {
-                    curCore.size.compareAndSet(curSize, curSize + 1)
-                    if (curCore.size.value > curSize) return
+                    currentCore.size.compareAndSet(currentSize, currentSize + 1)
+                    if (currentCore.size.value > currentSize) return
                 }
             }
             else {
                 var index = 0
-                while (index < curCore.size.value) {
-                    when (val curElement = curCore.array[index].value) {
+                while (index < currentCore.size.value) {
+                    when (val curElement = currentCore.array[index].value) {
                         is Frozen -> {
                             nextCore.array[index].compareAndSet(null, curElement.element)
                             index++
                             continue
                         }
                         else -> {
-                            curCore.array[index].compareAndSet(curElement, Frozen(curElement!!))
+                            currentCore.array[index].compareAndSet(curElement, Frozen(curElement!!))
                             continue
                         }
                     }
                 }
-                core.compareAndSet(curCore, nextCore)
+                core.compareAndSet(currentCore, nextCore)
             }
         }
     }
@@ -60,24 +60,24 @@ class DynamicArray<E: Any> {
      */
     fun set(index: Int, element: E) {
         while (true) {
-            val curCore = core.value
-            val curSize = curCore.size.value
-            require(index < curSize) { "index must be lower than the array size" }
+            val currentCore = core.value
+            val currentSize = currentCore.size.value
+            require(index < currentSize) { "index must be lower than the array size" }
             // TODO: check that the cell is not "frozen"
 
-            when (val curCellValue = curCore.array[index].value) {
+            when (val curCellValue = currentCore.array[index].value) {
                 is Frozen -> {
-                    val nextCore = curCore.next.value!!
+                    val nextCore = currentCore.next.value!!
                     var copyIndex = 0
-                    while (copyIndex < curCore.size.value) {
-                        when (val curElement = curCore.array[copyIndex].value) {
+                    while (copyIndex < currentCore.size.value) {
+                        when (val curElement = currentCore.array[copyIndex].value) {
                             is Frozen -> {
                                 nextCore.array[copyIndex].compareAndSet(null, curElement.element)
                                 copyIndex++
                                 continue
                             }
                             else -> {
-                                if (curCore.array[copyIndex].compareAndSet(curElement, Frozen(curElement!!))) {
+                                if (currentCore.array[copyIndex].compareAndSet(curElement, Frozen(curElement!!))) {
                                     nextCore.array[copyIndex].compareAndSet(null, curElement)
                                     copyIndex++
                                     continue
@@ -86,12 +86,12 @@ class DynamicArray<E: Any> {
                             }
                         }
                     }
-                    core.compareAndSet(curCore, nextCore)
+                    core.compareAndSet(currentCore, nextCore)
                     continue
                 }
 
                 else -> {
-                    if (!curCore.array[index].compareAndSet(curCellValue, element)) continue
+                    if (!currentCore.array[index].compareAndSet(curCellValue, element)) continue
                     return
                 }
             }
@@ -105,13 +105,13 @@ class DynamicArray<E: Any> {
      */
     @Suppress("UNCHECKED_CAST")
     fun get(index: Int): E {
-        val curCore = core.value
-        val curSize = curCore.size.value
-        require(index < curSize) { "index must be lower than the array size" }
+        val currentCore = core.value
+        val currentSize = currentCore.size.value
+        require(index < currentSize) { "index must be lower than the array size" }
         // TODO: check that the cell is not "frozen",
         // TODO: unwrap the element in this case.
 
-        return when(val curCellValue = curCore.array[index].value) {
+        return when(val curCellValue = currentCore.array[index].value) {
             is Frozen -> {
                 curCellValue.element as E
             }
